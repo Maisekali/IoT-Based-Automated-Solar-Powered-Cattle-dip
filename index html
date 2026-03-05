@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2E7D32">
+    <meta name="description" content="IoT Cattle Dip Monitoring System">
+    <title>🐄 Solar Cattle Dip Dashboard</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-content">
+            <h1><i class="fas fa-tractor"></i> Solar Cattle Dip</h1>
+            <div class="connection-status" id="connectionStatus">
+                <span class="status-dot offline"></span>
+                <span class="status-text">Disconnected</span>
+            </div>
+        </div>
+        <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Quick Stats -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon battery">
+                    <i class="fas fa-battery-three-quarters"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Battery</h3>
+                    <p class="stat-value" id="batteryValue">--</p>
+                    <p class="stat-label">Voltage</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon solar">
+                    <i class="fas fa-solar-panel"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Solar Input</h3>
+                    <p class="stat-value" id="solarValue">--</p>
+                    <p class="stat-label">Watts</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon tank">
+                    <i class="fas fa-tint"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Tank Level</h3>
+                    <p class="stat-value" id="tankValue">--</p>
+                    <p class="stat-label">Capacity</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon animals">
+                    <i class="fas fa-cow"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Today</h3>
+                    <p class="stat-value" id="animalsValue">--</p>
+                    <p class="stat-label">Animals</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Status -->
+        <section class="status-section">
+            <h2><i class="fas fa-info-circle"></i> System Status</h2>
+            <div class="status-grid">
+                <div class="status-item" id="entranceStatus">
+                    <i class="fas fa-door-closed"></i>
+                    <span>Entrance: <strong>Closed</strong></span>
+                </div>
+                <div class="status-item" id="exitStatus">
+                    <i class="fas fa-door-closed"></i>
+                    <span>Exit: <strong>Closed</strong></span>
+                </div>
+                <div class="status-item" id="pumpStatus">
+                    <i class="fas fa-faucet"></i>
+                    <span>Pump: <strong>Off</strong></span>
+                </div>
+                <div class="status-item" id="sprayStatus">
+                    <i class="fas fa-shower"></i>
+                    <span>Spray: <strong>Inactive</strong></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real-time Gauges -->
+        <section class="gauges-section">
+            <h2><i class="fas fa-chart-line"></i> Live Metrics</h2>
+            <div class="gauges-grid">
+                <div class="gauge-card">
+                    <h3>Temperature</h3>
+                    <div class="gauge-container">
+                        <canvas id="tempGauge"></canvas>
+                        <div class="gauge-value" id="tempValue">--°C</div>
+                    </div>
+                </div>
+
+                <div class="gauge-card">
+                    <h3>Flow Rate</h3>
+                    <div class="gauge-container">
+                        <canvas id="flowGauge"></canvas>
+                        <div class="gauge-value" id="flowValue">-- L/min</div>
+                    </div>
+                </div>
+
+                <div class="gauge-card">
+                    <h3>Total Sprayed</h3>
+                    <div class="gauge-container">
+                        <canvas id="totalGauge"></canvas>
+                        <div class="gauge-value" id="totalValue">-- L</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Control Panel -->
+        <section class="control-section">
+            <h2><i class="fas fa-sliders-h"></i> Manual Controls</h2>
+            <div class="control-grid">
+                <button class="control-btn" id="btnEntrance" onclick="toggleGate('entrance')">
+                    <i class="fas fa-door-open"></i>
+                    <span>Open Entrance</span>
+                </button>
+                
+                <button class="control-btn" id="btnExit" onclick="toggleGate('exit')">
+                    <i class="fas fa-door-open"></i>
+                    <span>Open Exit</span>
+                </button>
+                
+                <button class="control-btn primary" id="btnSpray" onclick="toggleSpray()">
+                    <i class="fas fa-shower"></i>
+                    <span>Start Spray</span>
+                </button>
+                
+                <button class="control-btn danger" id="btnEmergency" onclick="emergencyStop()">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Emergency Stop</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Alerts -->
+        <section class="alerts-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Alerts & Notifications</h2>
+            <div id="alertsContainer" class="alerts-container">
+                <div class="alert info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>System initialized. Waiting for data...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Historical Charts -->
+        <section class="charts-section">
+            <h2><i class="fas fa-chart-area"></i> Historical Data</h2>
+            <div class="chart-container">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-page="dashboard">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-page="analytics">
+            <i class="fas fa-chart-bar"></i>
+            <span>Analytics</span>
+        </a>
+        <a href="#" class="nav-item" data-page="settings">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- Install Prompt -->
+    <div id="installPrompt" class="install-prompt hidden">
+        <div class="prompt-content">
+            <i class="fas fa-mobile-alt"></i>
+            <h3>Install App</h3>
+            <p>Install this app on your device for quick access and offline use.</p>
+            <div class="prompt-buttons">
+                <button class="btn-primary" id="installBtn">Install</button>
+                <button class="btn-secondary" id="dismissInstall">Later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/mqtt-client.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
