@@ -1,0 +1,41 @@
+{
+  "name": "Solar Cattle Dip Monitor",
+  "short_name": "CattleDip",
+  "description": "IoT-based Automated Solar Powered Cattle Dip Monitoring System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1B5E20",
+  "theme_color": "#2E7D32",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["agriculture", "utilities", "monitoring"],
+  "shortcuts": [
+    {
+      "name": "Start Spray",
+      "short_name": "Spray",
+      "description": "Manually start spraying",
+      "url": "/?action=spray",
+      "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Emergency Stop",
+      "short_name": "Stop",
+      "description": "Emergency system stop",
+      "url": "/?action=stop",
+      "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
+    }
+  ]
+}
